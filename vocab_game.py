@@ -74,7 +74,7 @@ elif score == 3:
 elif score == 2:
     st.warning("👍 Not bad, try a bit more!")
 else:
-    st.error("💀 You lose!"
+    st.error("💀 You lose!")
 
 
 # ----------------------------------------------------
