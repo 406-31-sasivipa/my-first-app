@@ -75,19 +75,14 @@ st.write(f"ระดับ: {level}")
 
 # ⏱️ นับถอยหลังแบบ real-time
 time_placeholder = st.empty()
+elapsed = time.time() - st.session_state.start_time
+remaining = max(0, 30 - int(elapsed))
+st.markdown(f"## ⏱️ {remaining} วินาที")
 
-while True:
-    elapsed = time.time() - st.session_state.start_time
-    remaining = 30 - int(elapsed)
-
-    if remaining <= 0:
-        time_placeholder.error("⏰ หมดเวลา!")
-        st.session_state.game_over = True
-        st.stop()
-
-    time_placeholder.markdown(f"## ⏱️ {remaining} วินาที")
-    time.sleep(1)
-    break  # สำคัญ (ไม่งั้นค้าง)
+if remaining == 0:
+    st.error("⏰ หมดเวลา!")
+    st.session_state.game_over = True
+    st.stop()
 
 # รับคำตอบ
 user_answer = st.text_input("✏️ คำตอบ:", key=q_index)
@@ -104,28 +99,29 @@ if st.button("✅ ตอบ"):
 
 # 🎉 POPUP
 if st.session_state.show_popup:
-    with st.dialog("🎉 ผลลัพธ์"):
-        if st.session_state.correct:
-            st.success("✔️ ถูกต้อง!")
-            st.write("เก่งมาก ไปต่อเลย 🚀")
+    st.markdown("---")
+    
+    if st.session_state.correct:
+        st.success("✔️ ถูกต้อง!")
+        st.write("เก่งมาก ไปต่อเลย 🚀")
 
-            if st.button("➡️ ข้อถัดไป"):
-                st.session_state.q_index += 1
-                st.session_state.start_time = time.time()
-                st.session_state.show_popup = False
+        if st.button("➡️ ข้อถัดไป"):
+            st.session_state.q_index += 1
+            st.session_state.start_time = time.time()
+            st.session_state.show_popup = False
 
-                if st.session_state.q_index == len(questions):
-                    st.session_state.game_over = True
-                st.rerun()
+            if st.session_state.q_index == len(questions):
+                st.session_state.game_over = True
+            st.rerun()
 
-        else:
-            st.error(f"❌ ผิด! คำตอบคือ {answer}")
-            st.write("เกมจบแล้ว 😢")
+    else:
+        st.error(f"❌ ผิด! คำตอบคือ {answer}")
+        st.write("เกมจบแล้ว 😢")
 
-            if st.button("🔄 เล่นใหม่"):
-                st.session_state.started = False
-                st.session_state.q_index = 0
-                st.session_state.score = 0
-                st.session_state.game_over = False
-                st.session_state.show_popup = False
-                st.rerun()
+        if st.button("🔄 เล่นใหม่"):
+            st.session_state.started = False
+            st.session_state.q_index = 0
+            st.session_state.score = 0
+            st.session_state.game_over = False
+            st.session_state.show_popup = False
+            st.rerun()
