@@ -1,15 +1,11 @@
 import streamlit as st
 import time
 
-st.set_page_config(page_title="เกมคณิตศาสตร์", page_icon="🧠")
+st.set_page_config(page_title="เกมคิดเลขเร็ว บวก ลบ คูณ หาร", page_icon="🧠")
 
-st.title("🧠 เกมคิดเลขเร็ว")
+st.title("🧠 เกมคิดเลขเร็ว!")
 
-# เสียง
-correct_sound = "https://www.soundjay.com/buttons/sounds/button-4.mp3"
-wrong_sound = "https://www.soundjay.com/buttons/sounds/button-10.mp3"
-
-# โจทย์ + ระดับความยาก
+# โจทย์ + ระดับ
 questions = [
     ("ข้อ 1: 14 + 8 = ?", 22, "🟢 ง่าย"),
     ("ข้อ 2: 35 - 17 = ?", 18, "🟢 ง่าย"),
@@ -30,18 +26,18 @@ if "started" not in st.session_state:
     st.session_state.score = 0
     st.session_state.start_time = 0
     st.session_state.game_over = False
-    st.session_state.answered = False
+    st.session_state.show_popup = False
     st.session_state.correct = False
     st.session_state.high_score = 0
 
-# ปุ่มเริ่มเกม
+# ปุ่มเริ่ม
 if not st.session_state.started:
     if st.button("▶️ เริ่มเกม"):
         st.session_state.started = True
         st.session_state.start_time = time.time()
     st.stop()
 
-# sidebar คะแนนสูงสุด
+# sidebar
 st.sidebar.title("🏆 High Score")
 st.sidebar.write(st.session_state.high_score)
 
@@ -60,17 +56,14 @@ if st.session_state.game_over:
         st.success("🎉 สุดยอดอัจฉริยะ!!!")
     elif score >= 7:
         st.info("🔥 เก่งมาก!")
-    elif score >= 4:
-        st.warning("🙂 พอใช้")
     else:
-        st.error("😅 ลองใหม่!")
+        st.warning("🙂 ลองใหม่!")
 
-    if st.button("🔄 เล่นอีกครั้ง"):
+    if st.button("🔄 เล่นใหม่"):
         st.session_state.started = False
         st.session_state.q_index = 0
         st.session_state.score = 0
         st.session_state.game_over = False
-        st.session_state.answered = False
     st.stop()
 
 # แสดงข้อ
@@ -80,42 +73,59 @@ question, answer, level = questions[q_index]
 st.subheader(question)
 st.write(f"ระดับ: {level}")
 
-# เวลา
-elapsed = time.time() - st.session_state.start_time
-remaining = max(0, 30 - int(elapsed))
-st.write(f"⏱️ เวลาเหลือ: {remaining} วินาที")
+# ⏱️ นับถอยหลังแบบ real-time
+time_placeholder = st.empty()
 
+while True:
+    elapsed = time.time() - st.session_state.start_time
+    remaining = 30 - int(elapsed)
+
+    if remaining <= 0:
+        time_placeholder.error("⏰ หมดเวลา!")
+        st.session_state.game_over = True
+        st.stop()
+
+    time_placeholder.markdown(f"## ⏱️ {remaining} วินาที")
+    time.sleep(1)
+    break  # สำคัญ (ไม่งั้นค้าง)
+
+# รับคำตอบ
 user_answer = st.text_input("✏️ คำตอบ:", key=q_index)
 
-# หมดเวลา
-if remaining == 0 and not st.session_state.answered:
-    st.audio(wrong_sound)
-    st.error("⏰ หมดเวลา!")
-    st.session_state.game_over = True
-    st.stop()
-
 # ปุ่มตอบ
-if not st.session_state.answered:
-    if st.button("✅ ตอบ"):
-        st.session_state.answered = True
-        if user_answer.isdigit() and int(user_answer) == answer:
-            st.audio(correct_sound)
-            st.success("✔️ ถูกต้อง!")
-            st.session_state.score += 1
-            st.session_state.correct = True
-        else:
-            st.audio(wrong_sound)
-            st.error(f"❌ ผิด! คำตอบคือ {answer}")
-            st.session_state.game_over = True
-            st.stop()
+if st.button("✅ ตอบ"):
+    st.session_state.show_popup = True
 
-# ปุ่มไปข้อถัดไป
-if st.session_state.answered and st.session_state.correct:
-    if st.button("➡️ ข้อถัดไป"):
-        st.session_state.q_index += 1
-        st.session_state.start_time = time.time()
-        st.session_state.answered = False
+    if user_answer.isdigit() and int(user_answer) == answer:
+        st.session_state.score += 1
+        st.session_state.correct = True
+    else:
         st.session_state.correct = False
 
-        if st.session_state.q_index == len(questions):
-            st.session_state.game_over = True
+# 🎉 POPUP
+if st.session_state.show_popup:
+    with st.dialog("🎉 ผลลัพธ์"):
+        if st.session_state.correct:
+            st.success("✔️ ถูกต้อง!")
+            st.write("เก่งมาก ไปต่อเลย 🚀")
+
+            if st.button("➡️ ข้อถัดไป"):
+                st.session_state.q_index += 1
+                st.session_state.start_time = time.time()
+                st.session_state.show_popup = False
+
+                if st.session_state.q_index == len(questions):
+                    st.session_state.game_over = True
+                st.rerun()
+
+        else:
+            st.error(f"❌ ผิด! คำตอบคือ {answer}")
+            st.write("เกมจบแล้ว 😢")
+
+            if st.button("🔄 เล่นใหม่"):
+                st.session_state.started = False
+                st.session_state.q_index = 0
+                st.session_state.score = 0
+                st.session_state.game_over = False
+                st.session_state.show_popup = False
+                st.rerun()
