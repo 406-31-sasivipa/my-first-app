@@ -109,14 +109,14 @@ if st.session_state.game_over:
         st.balloons()
         st.success("🎉 สุดยอดอัจฉริยะ!!!")
 
-    elif score >= 7:
-        st.info("🔥 เก่งมาก!")
+    elif 7 <= score < 10 :
+        st.info("🔥 ตัวท็อปคณิตศาสตร์")
 
-    elif score >= 5:
-        st.warning("👍 ทำได้ดี ลองทำให้ได้มากกว่านี้!")
+    elif 5 <= score < 7 :
+        st.warning("👍 คณิตศาสตร์คนปกติ")
 
     else:
-        st.error("🙂 ลองใหม่อีกครั้ง!")
+        st.error("🙂 เด็กหลังห้อง พยายามใหม่นะ")
 
     st.markdown("---")
 
