@@ -157,7 +157,7 @@ with col2:
 # =========================
 # Timer
 # =========================
-st.button("▶️ เริ่มเกม", use_container_width=True):
+st.button("▶️ เริ่มเกม", on_click=reset_game):
 if "start" in st.session_state and not st.session_state.get("is_ended", False):
     time_left = int(30 - (time.time() - st.session_state.start))
 
