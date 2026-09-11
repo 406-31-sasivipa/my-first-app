@@ -1,6 +1,26 @@
 import streamlit as st
 import time
 
+@st.dialog("📊 สรุปผลการเล่นเกม")
+def show_result_popup(score, total):
+
+    st.balloons()
+
+    st.metric("คะแนนของคุณ", f"{score} / {total}")
+
+    # ประเมินระดับ
+    if score == total:
+        st.success("🎉 อัจฉริยะสุดๆเลยอ่ะ")
+    elif score >= 7:
+        st.info("🔥 คณิตศาตร์ตัวตึง")
+    elif score >= 5:
+        st.warning("👍 นักเรียนคณิตธรรมดา")
+    else:
+        st.error("🙂 เด็กหลัฃห้องเอ้ย พยามขึ้นหล่ะ")
+
+    if st.button("🔄 เล่นใหม่", use_container_width=True):
+        reset_game()
+        st.rerun()
 st.set_page_config(
     page_title="เกมคิดเลขเร็ว บวก ลบ คูณ หาร",
     page_icon="🧠"
@@ -245,13 +265,14 @@ if st.session_state.show_popup:
         # ถ้าครบ 10 ข้อ
         else:
 
-            st.session_state.game_over = True
+            if st.session_state.game_over:
 
-            if st.button(
-                "🏆 ดูคะแนนสุดท้าย",
-                use_container_width=True
-            ):
-                st.rerun()
+    show_result_popup(
+        st.session_state.score,
+        len(questions)
+    )
+
+    st.stop()
 
     else:
 
@@ -285,6 +306,10 @@ if not st.session_state.show_popup:  #
         st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
         time.sleep(1)
         st.rerun()
+
+if time_left <= 0:
+    st.session_state.game_over = True
+    st.rerun()
     else:
         st.session_state.game_over = True
         st.warning("⏰ หมดเวลา!")
