@@ -138,21 +138,6 @@ st.subheader(question)
 
 st.write(f"ระดับ: {level}")
 
-# แสดงคะแนนด้านบน
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric(
-        "📊 คะแนน",
-        f"{st.session_state.score} / {len(questions)}"
-    )
-
-with col2:
-    st.metric(
-        "📝 ข้อที่",
-        f"{q_index + 1} / {len(questions)}"
-    )
-
 
 
 # =========================
@@ -187,6 +172,20 @@ if clear_button:
     st.session_state[f"answer_{q_index}"] = ""
     st.rerun()
 
+# แสดงคะแนนด้านบน
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        "📊 คะแนน",
+        f"{st.session_state.score} / {len(questions)}"
+    )
+
+with col2:
+    st.metric(
+        "📝 ข้อที่",
+        f"{q_index + 1} / {len(questions)}"
+    )
 
 # =========================
 # ตรวจคำตอบ
