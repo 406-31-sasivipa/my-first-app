@@ -157,11 +157,16 @@ with col2:
 # =========================
 # Timer
 # =========================
-elapsed = time.time() - st.session_state.start_time
-remaining = max(0, 30 - int(elapsed))
+if "start" in st.session_state and not st.session_state.get("is_ended", False):
+    time_left = int(30 - (time.time() - st.session_state.start))
 
-st.markdown(f"## ⏱️ เหลือเวลา {remaining} วินาที")
+    if time_left > 0:
+        st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
+    else:
+        st.session_state.is_ended = True
+        st.rerun()
 
+st.divider()
 
 # =========================
 # หมดเวลา
