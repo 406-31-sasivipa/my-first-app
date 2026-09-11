@@ -85,13 +85,13 @@ def show_result(score, total):
     st.metric("คะแนน", f"{score}/{total}")
 
     if score == total:
-        st.success("🎉 อัจฉริยะสุด ๆ")
+        st.success("🎉 อัจฉริยะสุดโหดมากเลย")
     elif score >= 7:
-        st.info("🔥 เก่งมาก")
+        st.info("🔥 นักคณิตศาตร์ตัวจริง")
     elif score >= 5:
-        st.warning("👍 ปานกลาง")
+        st.warning("👍 นักเรียนคณิตศาตร์พื้นฐาน")
     else:
-        st.error("🙂 ต้องฝึกอีก")
+        st.error("🙂 เด็กหลังห้องพยามขึ้นอีกนิด")
 
     if st.button("🔄 เล่นใหม่"):
         reset_game()
