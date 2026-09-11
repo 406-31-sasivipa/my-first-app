@@ -1,26 +1,6 @@
 import streamlit as st
 import time
 
-@st.dialog("📊 สรุปผลการเล่นเกม")
-def show_result_popup(score, total):
-
-    st.balloons()
-
-    st.metric("คะแนนของคุณ", f"{score} / {total}")
-
-    # ประเมินระดับ
-    if score == total:
-        st.success("🎉 อัจฉริยะสุดๆเลยอ่ะ")
-    elif score >= 7:
-        st.info("🔥 คณิตศาตร์ตัวตึง")
-    elif score >= 5:
-        st.warning("👍 นักเรียนคณิตธรรมดา")
-    else:
-        st.error("🙂 เด็กหลัฃห้องเอ้ย พยามขึ้นหล่ะ")
-
-    if st.button("🔄 เล่นใหม่", use_container_width=True):
-        reset_game()
-        st.rerun()
 st.set_page_config(
     page_title="เกมคิดเลขเร็ว บวก ลบ คูณ หาร",
     page_icon="🧠"
@@ -45,194 +25,147 @@ questions = [
 ]
 
 # =========================
-# ฟังก์ชันเริ่มเกมใหม่
+# reset game
 # =========================
 def reset_game():
     st.session_state.started = False
     st.session_state.q_index = 0
     st.session_state.score = 0
-    st.session_state.start_time = 0
+    st.session_state.start_time = time.time()
     st.session_state.game_over = False
     st.session_state.show_popup = False
     st.session_state.correct = False
 
-
 # =========================
-# Session State
+# init state
 # =========================
 if "started" not in st.session_state:
     st.session_state.started = False
     st.session_state.q_index = 0
     st.session_state.score = 0
-    st.session_state.start_time = 0
+    st.session_state.start_time = time.time()
     st.session_state.game_over = False
     st.session_state.show_popup = False
     st.session_state.correct = False
     st.session_state.high_score = 0
 
-
 # =========================
-# หน้าเริ่มเกม
+# start screen
 # =========================
 if not st.session_state.started:
 
-    st.info("🎯 ตอบโจทย์ให้ได้มากที่สุดภายในเวลาที่กำหนด")
+    st.info("🎯 ตอบโจทย์ให้ได้มากที่สุดภายใน 30 วินาทีต่อข้อ")
 
     if st.button("▶️ เริ่มเกม", use_container_width=True):
         st.session_state.started = True
         st.session_state.q_index = 0
         st.session_state.score = 0
-        st.session_state.game_over = False
-        st.session_state.show_popup = False
         st.session_state.start_time = time.time()
+        st.session_state.game_over = False
         st.rerun()
 
     st.stop()
 
-
 # =========================
-# Sidebar แสดงคะแนน
+# sidebar
 # =========================
 st.sidebar.title("🏆 คะแนน")
 
-st.sidebar.metric(
-    "คะแนนปัจจุบัน",
-    f"{st.session_state.score} / {len(questions)}"
-)
-
-st.sidebar.metric(
-    "High Score",
-    st.session_state.high_score
-)
-
+st.sidebar.metric("คะแนน", f"{st.session_state.score}/{len(questions)}")
+st.sidebar.metric("High Score", st.session_state.high_score)
 
 # =========================
-# เกมจบ
+# game over popup (ปลอดภัย)
 # =========================
-if st.session_state.game_over:
+def show_result(score, total):
 
+    st.balloons()
     st.subheader("📊 สรุปผล")
 
-    score = st.session_state.score
+    st.metric("คะแนน", f"{score}/{total}")
 
-    st.metric(
-        "คะแนนที่ได้",
-        f"{score} / {len(questions)}"
-    )
-
-    # บันทึก High Score
-    if score > st.session_state.high_score:
-        st.session_state.high_score = score
-        st.success("🏆 New High Score!")
-
-    if score == 10:
-        st.balloons()
-        st.success("🎉 สุดยอดอัจฉริยะ!!!")
-
-    elif 7 <= score < 10 :
-        st.info("🔥 ตัวท็อปคณิตศาสตร์")
-
-    elif 5 <= score < 7 :
-        st.warning("👍 คณิตศาสตร์คนปกติ")
-
+    if score == total:
+        st.success("🎉 อัจฉริยะสุด ๆ")
+    elif score >= 7:
+        st.info("🔥 เก่งมาก")
+    elif score >= 5:
+        st.warning("👍 ปานกลาง")
     else:
-        st.error("🙂 เด็กหลังห้อง พยายามใหม่นะ")
+        st.error("🙂 ต้องฝึกอีก")
 
-    st.markdown("---")
-
-    if st.button("🔄 เริ่มเล่นใหม่", use_container_width=True):
+    if st.button("🔄 เล่นใหม่"):
         reset_game()
         st.rerun()
 
+# =========================
+# game over
+# =========================
+if st.session_state.game_over:
+
+    show_result(st.session_state.score, len(questions))
     st.stop()
 
-
 # =========================
-# แสดงโจทย์
+# question
 # =========================
 q_index = st.session_state.q_index
-
 question, answer, level = questions[q_index]
 
 st.subheader(question)
-
 st.write(f"ระดับ: {level}")
 
-
-
-# =========================
-# ช่องกรอกคำตอบ
-# =========================
-user_answer = st.text_input(
-    "✏️ คำตอบ:",
-    key=f"answer_{q_index}"
-)
-
-
-# =========================
-# ปุ่มตอบ + ลบคำตอบ
-# =========================
 col1, col2 = st.columns(2)
-
 with col1:
-    answer_button = st.button(
-        "✅ ตอบ",
-        use_container_width=True
-    )
-
+    st.metric("คะแนน", f"{st.session_state.score}/{len(questions)}")
 with col2:
-    clear_button = st.button(
-        "🗑️ ลบคำตอบ",
-        use_container_width=True
-    )
+    st.metric("ข้อ", f"{q_index+1}/{len(questions)}")
 
+# =========================
+# timer (ไม่พัง UI)
+# =========================
+time_left = int(30 - (time.time() - st.session_state.start_time))
 
-# ปุ่มลบคำตอบ
-if clear_button:
-    st.session_state[f"answer_{q_index}"] = ""
+st.warning(f"⏳ เหลือเวลา: {max(time_left,0)} วินาที")
+
+if time_left <= 0:
+    st.session_state.game_over = True
     st.rerun()
 
-# แสดงคะแนนด้านบน
+# =========================
+# answer input
+# =========================
+user_answer = st.text_input("✏️ คำตอบ:", key=f"ans_{q_index}")
+
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(
-        "📊 คะแนน",
-        f"{st.session_state.score} / {len(questions)}"
-    )
+    submit = st.button("✅ ตอบ", use_container_width=True)
 
 with col2:
-    st.metric(
-        "📝 ข้อที่",
-        f"{q_index + 1} / {len(questions)}"
-    )
+    clear = st.button("🗑️ ลบ", use_container_width=True)
+
+if clear:
+    st.session_state[f"ans_{q_index}"] = ""
+    st.rerun()
 
 # =========================
-# ตรวจคำตอบ
+# check answer
 # =========================
-if answer_button:
+if submit:
 
     st.session_state.show_popup = True
 
-    # รองรับจำนวนเต็ม
     try:
-        user_number = int(user_answer)
-
-        if user_number == answer:
+        if int(user_answer) == answer:
             st.session_state.correct = True
-
-            # เพิ่มคะแนน
             st.session_state.score += 1
-
         else:
             st.session_state.correct = False
-
-    except ValueError:
+    except:
         st.session_state.correct = False
 
-
 # =========================
-# แสดงผลคำตอบ
+# result UI
 # =========================
 if st.session_state.show_popup:
 
@@ -242,75 +175,25 @@ if st.session_state.show_popup:
 
         st.success("✔️ ถูกต้อง!")
 
-        st.write(
-            f"🎉 เก่งมาก! ตอนนี้คุณได้ "
-            f"**{st.session_state.score} / {len(questions)} คะแนน**"
-        )
-
-        # ถ้ายังมีข้อเหลือ
         if q_index + 1 < len(questions):
 
-            if st.button(
-                "➡️ ข้อถัดไป",
-                use_container_width=True
-            ):
-
+            if st.button("➡️ ข้อถัดไป"):
                 st.session_state.q_index += 1
                 st.session_state.start_time = time.time()
                 st.session_state.show_popup = False
-                st.session_state.correct = False
-
                 st.rerun()
 
-        # ถ้าครบ 10 ข้อ
         else:
-
-            if st.session_state.game_over:
-
-    show_result_popup(
-        st.session_state.score,
-        len(questions)
-    )
-
-    st.stop()
+            st.session_state.game_over = True
+            st.rerun()
 
     else:
 
         st.error(f"❌ ผิด! คำตอบคือ {answer}")
-
-        st.write(
-            f"📊 คะแนนของคุณ: "
-            f"**{st.session_state.score} / {len(questions)}**"
-        )
-
         st.warning("เกมจบแล้ว 😢")
 
-        if st.button(
-            "🔄 เริ่มเล่นใหม่",
-            use_container_width=True
-        ):
+        st.session_state.game_over = True
+
+        if st.button("🔄 เริ่มใหม่"):
             reset_game()
             st.rerun()
-# =========================
-# Timer 
-# =========================
-
-if not st.session_state.show_popup:  # 
-
-    if "start_time" not in st.session_state:
-        st.session_state.start_time = time.time()
-
-    time_left = int(30 - (time.time() - st.session_state.start_time))
-
-    if time_left > 0:
-        st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
-        time.sleep(1)
-        st.rerun()
-
-if time_left <= 0:
-    st.session_state.game_over = True
-    st.rerun()
-    else:
-        st.session_state.game_over = True
-        st.warning("⏰ หมดเวลา!")
-        st.rerun()
