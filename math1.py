@@ -168,27 +168,6 @@ if "start" in st.session_state and not st.session_state.get("is_ended", False):
 
 st.divider()
 
-# =========================
-# หมดเวลา
-# =========================
-if time_left == 0:
-
-    st.error("⏰ หมดเวลา!")
-
-    st.session_state.game_over = True
-
-    st.markdown("---")
-
-    st.warning(
-        f"📊 คุณทำได้ {st.session_state.score} / {len(questions)} คะแนน"
-    )
-
-    if st.button("🔄 เริ่มเล่นใหม่", use_container_width=True):
-        reset_game()
-        st.rerun()
-
-    st.stop()
-
 
 # =========================
 # ช่องกรอกคำตอบ
