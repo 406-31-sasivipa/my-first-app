@@ -154,25 +154,6 @@ with col2:
     )
 
 
-# =========================
-# Timer 
-# =========================
-
-if not st.session_state.show_popup:  # 
-
-    if "start_time" not in st.session_state:
-        st.session_state.start_time = time.time()
-
-    time_left = int(30 - (time.time() - st.session_state.start_time))
-
-    if time_left > 0:
-        st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
-        time.sleep(1)
-        st.rerun()
-    else:
-        st.session_state.game_over = True
-        st.warning("⏰ หมดเวลา!")
-        st.rerun()
 
 # =========================
 # ช่องกรอกคำตอบ
@@ -290,3 +271,22 @@ if st.session_state.show_popup:
         ):
             reset_game()
             st.rerun()
+# =========================
+# Timer 
+# =========================
+
+if not st.session_state.show_popup:  # 
+
+    if "start_time" not in st.session_state:
+        st.session_state.start_time = time.time()
+
+    time_left = int(30 - (time.time() - st.session_state.start_time))
+
+    if time_left > 0:
+        st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
+        time.sleep(1)
+        st.rerun()
+    else:
+        st.session_state.game_over = True
+        st.warning("⏰ หมดเวลา!")
+        st.rerun()
