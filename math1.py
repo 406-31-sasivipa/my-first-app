@@ -157,18 +157,19 @@ with col2:
 # =========================
 # Timer
 # =========================
-st.button("▶️ เริ่มเกม", on_click=reset_game):
-if "start" in st.session_state and not st.session_state.get("is_ended", False):
-    time_left = int(30 - (time.time() - st.session_state.start))
+if "start_time" not in st.session_state:
+    st.session_state.start_time = time.time()
 
-    if time_left > 0:
-        st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
-    else:
-        st.session_state.is_ended = True
-        st.rerun()
+time_left = int(30 - (time.time() - st.session_state.start_time))
 
-st.divider()
-
+if time_left > 0:
+    st.error(f"⏳ เหลือเวลา: {time_left} วินาที")
+    time.sleep(1)
+    st.rerun()
+else:
+    st.session_state.game_over = True
+    st.warning("⏰ หมดเวลา!")
+    st.rerun()
 
 # =========================
 # ช่องกรอกคำตอบ
